@@ -40,8 +40,14 @@ async def check_target(page, url):
             aria_disabled = await button.get_attribute("aria-disabled")
             if is_disabled is not None or aria_disabled == "true":
                 return False
+            # Button must say "Add to cart" to count as in stock
+            btn_text = await button.inner_text()
+            if "add to cart" not in btn_text.lower():
+                return False
+            return True  # enabled button that says "Add to cart" = in stock
 
-        return True
+        return False  # no button found = not available
+
     except Exception as e:
         print(f"[PAGE CHECK ERROR] {e}")
         return False
@@ -68,27 +74,27 @@ async def main():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             geolocation={"latitude": GEO_LAT, "longitude": GEO_LON},
             permissions=["geolocation"],
             locale="en-US",
         )
 
-        # Inject ZIP into localStorage
+        # Inject ZIP into localStorage — must be an IIFE to actually execute
         await context.add_init_script(f"""
-            () => {{
+            (() => {{
                 try {{
                     localStorage.setItem('guestPostalCode', '{CHECK_ZIP}');
                     localStorage.setItem('postalCode', '{CHECK_ZIP}');
                 }} catch(e) {{}}
-            }}
+            }})();
         """)
 
         # Add cookies for target.com
         try:
             await context.add_cookies([
-                {"name": "guestPostalCode", "value": CHECK_ZIP, "domain": ".target.com", "path": "/"},
-                {"name": "postalCode", "value": CHECK_ZIP, "domain": ".target.com", "path": "/"},
+                {{"name": "guestPostalCode", "value": CHECK_ZIP, "domain": ".target.com", "path": "/"}},
+                {{"name": "postalCode", "value": CHECK_ZIP, "domain": ".target.com", "path": "/"}},
             ])
         except Exception:
             pass
@@ -118,6 +124,7 @@ async def main():
 
     if not found_any:
         print("[CHECK] No items in stock.")
+
     # Heartbeat notification (optional)
     heartbeat_enabled = os.environ.get("HEARTBEAT_ENABLED", "false").lower() in ("1", "true", "yes")
     if heartbeat_enabled:
@@ -131,6 +138,7 @@ async def main():
                 print(f"[HEARTBEAT ERROR] {e}")
         else:
             print("[HEARTBEAT SKIP] DISCORD_WEBHOOK not set")
+
     print("[CHECK] Monitor check complete.")
 
 
