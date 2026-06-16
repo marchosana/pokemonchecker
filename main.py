@@ -1,11 +1,12 @@
 import asyncio
 import random
 import datetime
+import os
 import requests
 from playwright.async_api import async_playwright
 
 # --- CONFIG ---
-DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1515989946039668806/KnKPDaTgLLtkjsnUdlzSma-8areTlpKmvBShZ_JxIh957h80jZt1mAo76EoIz8OEPknQ"
+DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK")
 
 # Location settings (use ZIP 89139)
 CHECK_ZIP = "89139"

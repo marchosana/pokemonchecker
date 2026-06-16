@@ -118,6 +118,19 @@ async def main():
 
     if not found_any:
         print("[CHECK] No items in stock.")
+    # Heartbeat notification (optional)
+    heartbeat_enabled = os.environ.get("HEARTBEAT_ENABLED", "false").lower() in ("1", "true", "yes")
+    if heartbeat_enabled:
+        webhook = os.environ.get("DISCORD_WEBHOOK")
+        hb_msg = f"[HEARTBEAT] check complete - items_found={found_any}"
+        if webhook:
+            try:
+                requests.post(webhook, json={"content": hb_msg}, timeout=5)
+                print("[HEARTBEAT SENT]")
+            except Exception as e:
+                print(f"[HEARTBEAT ERROR] {e}")
+        else:
+            print("[HEARTBEAT SKIP] DISCORD_WEBHOOK not set")
     print("[CHECK] Monitor check complete.")
 
 

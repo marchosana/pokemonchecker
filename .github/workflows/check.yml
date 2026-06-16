@@ -28,4 +28,5 @@ jobs:
       - name: Run availability check
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          HEARTBEAT_ENABLED: 'true'
         run: python check_once.py
