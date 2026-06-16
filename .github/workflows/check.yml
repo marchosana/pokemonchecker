@@ -2,7 +2,7 @@ name: Target Pokemon ETB Monitor
 
 on:
   schedule:
-    - cron: '*/10 * * * *'   # Every 10 minutes
+    - cron: '*/5 * * * *'   # Every 5 minutes (temporary test)
   workflow_dispatch: {}      # Allow manual trigger
 
 jobs:
