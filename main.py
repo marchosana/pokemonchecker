@@ -17,7 +17,7 @@ GEO_LON = -115.1398
 # Target API settings (captured values)
 TARGET_API_KEY = "9f36aeafbe60771e321a7cc95a78140772ab3e96"
 TARGET_STORE_ID = "2164"
-USE_TARGET_API_FIRST = True
+USE_TARGET_API_FIRST = False
 
 PRODUCTS = [
     {
